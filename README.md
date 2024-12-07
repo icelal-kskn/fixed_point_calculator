@@ -44,7 +44,7 @@ python -m fixed_point_iteration.gui
 
 ## Project Structure
 ```bash
-fixed_point_iteration/
+fixed_point_calculator/
 │
 ├── src/
 │   ├── fixed_point_iteration/
