@@ -28,7 +28,7 @@ class FixedPointIteration:
     def __transform_to_g(self,f: Callable[[float], float]) -> Callable[[float], float]:
         """
         Transform f(x) to g(x) for Fixed-Point Iteration
-        
+        f(x) = 0 => x = g(x) 
         :param f: Original function f(x)
         :return: Transformed function g(x)
         """
@@ -43,7 +43,7 @@ class FixedPointIteration:
         
         :return: Dictionary with iteration results
         """
-        x_prev = self.__x0
+        x_prev = np.float64(self.__x0) #float256 gözükmesine rağmen çalışmıyor çok saçma
         iterations = [{'n': 0, 'x': x_prev, 'f_x': self.__f(x_prev)}]
         
         for n in range(1, self.__max_iter + 1):
@@ -54,11 +54,11 @@ class FixedPointIteration:
                 iterations.append({
                     'n': n, 
                     'x': x_curr, 
-                    'f_x': self.__f(x_curr),
+                    'g_x': self.__f(x_curr),
                 })
                 
                 # Convergence checks
-                if abs(self.__f(x_curr)) < self.__tol:
+                if np.abs(self.__f(x_curr)) < self.__tol:
                     return {
                         'success': True,
                         'root': x_curr,
@@ -66,7 +66,7 @@ class FixedPointIteration:
                         'message': 'Converged by f(x) tolerance'
                     }
                 
-                if abs(x_curr - x_prev) < self.__tol:
+                if np.abs(x_curr - x_prev) < self.__tol:
                     return {
                         'success': True,
                         'root': x_curr,
@@ -74,8 +74,25 @@ class FixedPointIteration:
                         'message': 'Converged by x difference tolerance'
                     }
                 
+                # Diveregence checks
+                if np.isinf(x_curr):
+                    return {
+                        'success': False,
+                        'root': x_curr,
+                        'iterations': iterations,
+                        'message': 'Diverged by infinity'
+                    }
+                
+                if np.isnan(x_curr):
+                    return {
+                        'success': False,
+                        'root': x_curr,
+                        'iterations': iterations,
+                        'message': 'Diverged by NaN'
+                    }
+                
                 x_prev = x_curr
-            except Exception as e:
+            except Exception as e: 
                     return {
                         'success': False,
                         'root': None,
@@ -109,7 +126,7 @@ class FixedPointIteration:
                 "max_iterations": {"type": "integer"}
             },
             "required": ["function", "x0", "tolerance", "max_iterations"],
-            "additionalProperties": False
+            "additionalProperties": False 
         }
         
         try:

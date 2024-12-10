@@ -1,7 +1,8 @@
 from .core import FixedPointIteration
 from flask import Flask, request, jsonify
 from flask_cors import CORS
-import numpy as np
+import numpy as np #pylint: disable=import-error 
+
 
 app = Flask(__name__)
 CORS(app)
@@ -28,7 +29,9 @@ def fixed_point_iteration():
             }), 400
         
         def f(x):
-            return eval(data['function']) # pylint: disable=eval-used # Must be checked in frontend 
+            return eval(data['function']) # pylint: disable=eval-used 
+        #TODO:Must be checked eval usage in the frontend (in gui.py) end disable runscript things
+        #May be i will do later
         
         solver = FixedPointIteration(
             f=f, 

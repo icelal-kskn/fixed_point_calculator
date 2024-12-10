@@ -38,7 +38,7 @@ class FixedPointIterationGUI:
         ttk.Label(input_frame, text="f(x):").grid(row=0, column=0, sticky=tk.W)
         self.function_entry = ttk.Entry(input_frame, width=40)
         self.function_entry.grid(row=0, column=1, columnspan=3, sticky=(tk.W, tk.E))
-        self.function_entry.insert(0, " np.sin(x) + x + 1 ")  # Placeholder
+        self.function_entry.insert(0, "np.sin(x) + x + 1 ")  # Placeholder
 
 
         # Initial Guess
@@ -101,7 +101,7 @@ class FixedPointIterationGUI:
     def plot_iterations(self, result):
         self.ax.clear()
 
-        if result.get('success', False):
+        if result.get('success', False): ## Can be show everything but NaN and inf how can be it shown
             iterations = result.get('iterations', [])
             x_values = [iter['x'] for iter in iterations]
             y_values = [iter['f_x'] for iter in iterations]
