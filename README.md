@@ -77,7 +77,7 @@ Send a POST request to `/fixed-point-iteration` with JSON payload:
 curl -X POST http://localhost:5000/fixed-point-iteration \
 -H "Content-Type: application/json" \
 -d '{
-  "function": "np.sin(x) + x + 1",
+  "function": "sin(x) + x + 1",
   "x0": 2,
   "tolerance": 1e-6,
   "max_iterations": 100
