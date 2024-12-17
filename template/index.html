@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Fixed Point Iteration</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="container">
+        <h1>Fixed Point Iteration</h1>
+        <div class="form-group">
+            <label for="function">Function (f(x)):</label>
+            <input type="text" id="function" placeholder="e.g., x**2 - 4">
+        </div>
+        <div class="form-group">
+            <label for="x0">Initial Guess (x₀):</label>
+            <input type="number" id="x0" placeholder="e.g., 2">
+        </div>
+        <div class="form-group">
+            <label for="tolerance">Tolerance:</label>
+            <input type="number" id="tolerance" step="0.0001" placeholder="e.g., 0.0001">
+        </div>
+        <div class="form-group">
+            <label for="maxIterations">Max Iterations:</label>
+            <input type="number" id="maxIterations" placeholder="e.g., 50">
+        </div>
+        <button onclick="solveFixedPoint()">Solve</button>
+        <div class="result" id="result"></div>
+    </div>
+    <script src="script.js"></script>
+</body>
+</html>
