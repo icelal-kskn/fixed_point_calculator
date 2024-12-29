@@ -1,6 +1,6 @@
 import numpy as np
 import jsonschema
-from sympy import symbols,Eq,sin,cos,tan,sec,csc,cot,asin,acos,atan,acot,log,exp,ln,lambdify,sympify
+from sympy import symbols,Eq,sin,cos,tan,sec,csc,cot,asin,acos,atan,acot,log,exp,ln,sqrt,lambdify,sympify
 
 class FixedPointIteration:
     """
@@ -19,9 +19,10 @@ class FixedPointIteration:
         :param tol: Tolerance for convergence
         :param max_iter: Maximum number of iterations
         """
+        self.x = symbols('x')
         self.f_x = f
         self.g_x = self.__transform_to_g(f)
-        self.__f = lambda x: eval(f)
+        self.__f = lambdify(self.x,f)
         self.__g = self.__g_function(self.g_x)
         self.__x0 = x0
         self.__tol = tol
@@ -95,7 +96,7 @@ class FixedPointIteration:
 
             return left_side, right_side
             
-        x = symbols('x')
+        x = self.x
         left_side,right_side=isolate_x(equation=Eq(eval(self.f_x),0)) # f(x) = 0
 
         if str(right_side) == "x": # g(x) = x 
@@ -110,8 +111,11 @@ class FixedPointIteration:
         :param g_x: Transformed function g(x)
         :return: Function for g(x)
         """
-        x = symbols('x')
-        return lambdify(x, g_x, modules=['numpy'])
+        try:
+            x = self.x
+            return lambdify(x, g_x, modules=['numpy'])
+        except RuntimeError as e:
+            return ValueError(f"Error creating g(x) function: {str(e)}")
         
     def solve(self):
         """
@@ -128,7 +132,8 @@ class FixedPointIteration:
                 "g_x_function": str(self.g_x)
             }
         ]
-
+        best_error = np.inf
+        patience = 10
         for n in range(1, self.__max_iter + 1):
             try:
                 # NaN/Inf check before computation
@@ -148,11 +153,17 @@ class FixedPointIteration:
                         "message": "Computation resulted in NaN or Infinity",
                         "iteration": n,
                         "previous_x": x_now,
-                        "problematic_x": x_next
+                        "problematic_x": x_next,
+                        "iterations": iterations
                     }
 
                 f_x = self.__f(x_next)
                 error = abs(x_next - x_now)
+
+                if error < best_error:
+                    best_error = error
+                else:
+                    patience -= 1
 
                 # Additional NaN check for function value
                 if np.isnan(f_x):
@@ -160,7 +171,9 @@ class FixedPointIteration:
                         "success": False,
                         "message": "Function evaluation resulted in NaN",
                         "iteration": n,
-                        "x_n": x_next
+                        "x_n": x_next,
+                        "f(x_n)": f_x,
+                        "iterations": iterations
                     }
 
                 iteration_info = {
@@ -181,13 +194,25 @@ class FixedPointIteration:
                         "error": error,
                         "iterations": iterations
                     }
+                
+                if patience == 0:
+                    return {
+                        "success": True,
+                        "message": "Patience limit reached",
+                        "n": n,
+                        "x": x_next,
+                        "f(x)": f_x,
+                        "error": best_error,
+                        "iterations": iterations
+                    }
             
             except Exception as e:
                 return {
                     "success": False,
                     "message": f"Computational error: {str(e)}",
                     "iteration": n,
-                    "x_n": x_now
+                    "x_n": x_now,
+                    "iterations": iterations
                 }
             
             x_now = x_next
@@ -195,6 +220,7 @@ class FixedPointIteration:
         return {
             "success": False,
             "message": "Maximum iterations reached without convergence",
+            "error": best_error,
             "n": self.__max_iter,
             "x": x_now,
             "f(x)": self.__f(x_now),
